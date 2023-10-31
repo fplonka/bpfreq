@@ -28,31 +28,24 @@ func main() {
 	fmt.Println("name:", file.Name())
 	defer file.Close()
 
+	fileBytes, err := io.ReadAll(file)
+
+	// Count byte pair frequencies in file
 	frequencies := make([][]int, 256)
 	for i := 0; i < len(frequencies); i++ {
 		frequencies[i] = make([]int, 256)
 	}
-	buffer := make([]byte, 2) // Create a buffer to hold each byte pair
 	maxFreq := 0
-	for {
-		bytesRead, err := file.Read(buffer)
-		if err != nil {
-			if err == io.EOF {
-				break // Exit loop at end of file
-			}
-			fmt.Printf("Read error: %v\n", err)
-			return // Exit if we encounter an error other than EOF
+
+	for i := 0; i+1 < len(fileBytes); i++ {
+		b1 := fileBytes[i]
+		b2 := fileBytes[i+1]
+
+		frequencies[b1][b2]++
+		if frequencies[b1][b2] > maxFreq {
+			maxFreq = frequencies[b1][b2]
 		}
 
-		if bytesRead < 2 {
-			break // Exit loop if we don't have a complete byte pair
-		}
-
-		// update max frequency
-		frequencies[buffer[0]][buffer[1]]++
-		if frequencies[buffer[0]][buffer[1]] > maxFreq {
-			maxFreq = frequencies[buffer[0]][buffer[1]]
-		}
 	}
 
 	// turn freqs into image
